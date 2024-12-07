@@ -52,11 +52,11 @@ class MazeGame:
 
             # Trigger AI help
             if self.algorithm == "bfs":
-                self.ai_help_path = self.ai.bfs(self.maze.maze)
+                self.ai_help_path = self.ai.bfs(tuple(self.player.position), self.maze.maze)
             elif self.algorithm == "dfs":
-                self.ai_help_path = self.ai.dfs(self.maze.maze)
+                self.ai_help_path = self.ai.dfs(tuple(self.player.position), self.maze.maze)
             elif self.algorithm == "a_star":
-                self.ai_help_path = self.ai.a_star(self.maze.maze)
+                self.ai_help_path = self.ai.a_star(tuple(self.player.position), self.maze.maze)
 
     def draw(self):
         self.maze.draw(screen, self.player.position, self.exit_pos, self.ai_help_path)
