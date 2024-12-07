@@ -1,6 +1,6 @@
 class Player:
-    def __init__(self, start_pos):
-        self.position = list(start_pos)
+    def __init__(self, start_position):
+        self.position = list(start_position)
 
     def move(self, maze, direction):
         x, y = self.position

@@ -2,6 +2,7 @@ from queue import Queue
 import heapq
 from queue import Queue
 import heapq
+from Maze import Maze
 
 class AI:
     def __init__(self, start_position, goal_position):
@@ -18,6 +19,11 @@ class AI:
     # Breadth-First Search (BFS)
     # ------------------------------
     def bfs(self, start_position, maze):
+        if self._is_path_blocked(start_position, maze):
+            return []
+        if not self.validate_connectivity(maze):
+            return []
+
         """
         Perform Breadth-First Search (BFS) to find the shortest path in an unweighted maze.
         
@@ -53,6 +59,10 @@ class AI:
     # Depth-First Search (DFS)
     # ------------------------------
     def dfs(self, start_position, maze):
+        if self._is_path_blocked(start_position, maze):
+            return []
+        if not self.validate_connectivity(maze):
+            return []
         """
         Perform Depth-First Search (DFS) to find a path in the maze.
         
@@ -68,7 +78,6 @@ class AI:
 
         while stack:    # Continue until all paths are explored
             current_position = stack.pop()
-
             # Check if we've reached the goal
             if current_position == self.goal_position:
                 return self._reconstruct_path(parent_map)
@@ -80,13 +89,16 @@ class AI:
                     if neighbor not in visited:
                         stack.append(neighbor)
                         parent_map[neighbor] = current_position  # Track how we reached this position
-
         return []  # No path found
 
     # ------------------------------
     # A* Search
     # ------------------------------
     def a_star(self, start_position, maze):
+        if self._is_path_blocked(start_position, maze):
+            return []
+        if not self.validate_connectivity(maze):
+            return []
         """
         Perform A* Search to find the optimal path using a heuristic.
         
@@ -165,3 +177,34 @@ class AI:
             current_position = parent_map[current_position]
         path.reverse()
         return path
+
+    def _is_path_blocked(self, start_position, maze):
+        if maze[start_position[1]][start_position[0]] == 1:
+            print("Error: Starting position is blocked.")
+            return True
+
+        if maze[self.goal_position[1]][self.goal_position[0]] == 1:
+            print("Error: Goal position is blocked.")
+            return True
+        
+        return False
+    
+    def validate_connectivity(self, maze):
+        rows, cols = len(maze), len(maze[0])
+        queue = Queue()
+        queue.put(self.start_position)
+        visited = set()
+        visited.add(self.start_position)
+
+        while not queue.empty():
+            x, y = queue.get()
+            for neighbor in self._get_neighbors((x, y), maze, rows, cols):
+                if neighbor not in visited:
+                    visited.add(neighbor)
+                    queue.put(neighbor)
+
+        if self.goal_position not in visited:
+            print("Error: Goal is unreachable from the start position.")
+            return False
+
+        return True

@@ -1,9 +1,12 @@
 import pygame
 import random
+from queue import Queue
 from CONSTANTS import *
 
+
 class Maze:
-    def __init__(self, grid_size):
+    def __init__(self, grid_size, cell_size):
+        self.cell_size = cell_size
         self.grid_size = grid_size
         self.maze = self.generate_maze()
 
@@ -47,6 +50,7 @@ class Maze:
         if not any(maze[exit_y + dy][exit_x + dx] == 0 for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]):
             maze[exit_y - 1][exit_x] = 0
 
+
         return maze
 
     def add_branches(self, maze):
@@ -86,28 +90,40 @@ class Maze:
         return open_neighbors == 1
 
 
-    
-
-
-    def draw(self, screen:pygame.display, player_pos, exit_pos, ai_path):
+    def draw(self, screen, player_pos, exit_pos, ai_path):
         for y, row in enumerate(self.maze):
             for x, cell in enumerate(row):
                 color = WHITE if cell == 0 else BLACK
-                pygame.draw.rect(screen, color, (x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
+                pygame.draw.rect(
+                    screen,
+                    color,
+                    (x * self.cell_size, y * self.cell_size, self.cell_size, self.cell_size)
+                )
 
-       
-        
         # Draw AI path
         for pos in ai_path:
-            pygame.draw.rect(screen, RED, (pos[0] * CELL_SIZE, pos[1] * CELL_SIZE, CELL_SIZE, CELL_SIZE))
+            pygame.draw.rect(
+                screen,
+                RED,
+                (pos[0] * self.cell_size, pos[1] * self.cell_size, self.cell_size, self.cell_size)
+            )
+
         # Draw player
-        pygame.draw.rect(screen, GREEN, (player_pos[0] * CELL_SIZE, player_pos[1] * CELL_SIZE, CELL_SIZE, CELL_SIZE))
+        pygame.draw.rect(
+            screen,
+            GREEN,
+            (player_pos[0] * self.cell_size, player_pos[1] * self.cell_size, self.cell_size, self.cell_size)
+        )
+
         # Draw exit
-        pygame.draw.rect(screen, YELLOW, (exit_pos[0] * CELL_SIZE, exit_pos[1] * CELL_SIZE, CELL_SIZE, CELL_SIZE))
+        pygame.draw.rect(
+            screen,
+            YELLOW,
+            (exit_pos[0] * self.cell_size, exit_pos[1] * self.cell_size, self.cell_size, self.cell_size)
+        )
 
 
-
-if __name__ == "__main__":
-    maze = Maze(GRID_SIZE)
-    for row in maze.maze:
-        print("".join([" " if cell == 0 else "#" for cell in row]))
+# if __name__ == "__main__":
+#     maze = Maze(GRID_SIZE)
+#     for row in maze.maze:
+#         print("".join([" " if cell == 0 else "#" for cell in row]))
