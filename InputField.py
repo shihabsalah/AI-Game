@@ -1,7 +1,7 @@
 from CONSTANTS import *
 import pygame
 class InputField:
-    def __init__(self, x, y, width, height, font, default_text="", text_color=BLACK, border_color=BLACK):
+    def __init__(self, x, y, width, height, font, default_text="", text_color=CONSTANTS.BLACK, border_color=CONSTANTS.BLACK):
         """
         Initialize an InputField for user text input.
         
@@ -25,7 +25,7 @@ class InputField:
 
     def draw(self, screen):
         # Draw the white background
-        pygame.draw.rect(screen, WHITE, self.rect)
+        pygame.draw.rect(screen, CONSTANTS.WHITE, self.rect)
 
         # Draw the border
         pygame.draw.rect(screen, self.border_color, self.rect, 2)

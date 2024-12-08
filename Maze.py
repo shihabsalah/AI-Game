@@ -98,7 +98,7 @@ class Maze:
     def draw(self, screen, player_pos, exit_pos, ai_path):
         for y in range(self.rows):
             for x in range(self.cols):
-                color = WHITE if self.maze[y][x] == 0 else BLACK
+                color = CONSTANTS.WHITE if self.maze[y][x] == 0 else CONSTANTS.BLACK
                 pygame.draw.rect(
                     screen,
                     color,
@@ -109,21 +109,21 @@ class Maze:
         for pos in ai_path:
             pygame.draw.rect(
                 screen,
-                RED,
+                CONSTANTS.RED,
                 (pos[0] * self.cell_size, pos[1] * self.cell_size, self.cell_size, self.cell_size)
             )
 
         # Draw player
         pygame.draw.rect(
             screen,
-            GREEN,
+            CONSTANTS.GREEN,
             (player_pos[0] * self.cell_size, player_pos[1] * self.cell_size, self.cell_size, self.cell_size)
         )
 
         # Draw exit
         pygame.draw.rect(
             screen,
-            YELLOW,
+            CONSTANTS.YELLOW,
             (exit_pos[0] * self.cell_size, exit_pos[1] * self.cell_size, self.cell_size, self.cell_size)
         )
 

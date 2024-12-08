@@ -1,7 +1,7 @@
 import pygame
 import random
 
-from CONSTANTS import *
+from CONSTANTS import CONSTANTS
 from Maze import Maze
 from Player import Player
 from AI import AI
@@ -18,28 +18,27 @@ pygame.display.set_caption("Maze Game")
 class MazeGame:
     def __init__(self):
         
-        self.set_constants(50)
-        self.set_variables()
-        self.iniate_services()
+        CONSTANTS.set_screen_size()
+        self.iniate_services_and_variables()
         
         # Define buttons
         self.buttons = [
-            Button(SCREEN_WIDTH - RIGHT_COLUMN_WIDTH + 50, 100, 200, 50, "BFS", self.font, BLUE, WHITE),
-            Button(SCREEN_WIDTH - RIGHT_COLUMN_WIDTH + 50, 200, 200, 50, "DFS", self.font, BLUE, WHITE),
-            Button(SCREEN_WIDTH - RIGHT_COLUMN_WIDTH + 50, 300, 200, 50, "A*", self.font, BLUE, WHITE),
-            Button(SCREEN_WIDTH - RIGHT_COLUMN_WIDTH + 50, 400, 200, 50, "Refresh", self.font, GREEN, WHITE),  # New Refresh button
-            Button(SCREEN_WIDTH - RIGHT_COLUMN_WIDTH + 50, 500, 200, 50, "Exit", self.font, RED, WHITE)
+            Button(CONSTANTS.SCREEN_WIDTH - CONSTANTS.RIGHT_COLUMN_WIDTH + 50, 100, 200, 50, "BFS", self.font, CONSTANTS.BLUE, CONSTANTS.WHITE),
+            Button(CONSTANTS.SCREEN_WIDTH - CONSTANTS.RIGHT_COLUMN_WIDTH + 50, 200, 200, 50, "DFS", self.font, CONSTANTS.BLUE, CONSTANTS.WHITE),
+            Button(CONSTANTS.SCREEN_WIDTH - CONSTANTS.RIGHT_COLUMN_WIDTH + 50, 300, 200, 50, "A*", self.font, CONSTANTS.BLUE, CONSTANTS.WHITE),
+            Button(CONSTANTS.SCREEN_WIDTH - CONSTANTS.RIGHT_COLUMN_WIDTH + 50, 400, 200, 50, "Refresh", self.font, CONSTANTS.GREEN, CONSTANTS.WHITE),  # New Refresh button
+            Button(CONSTANTS.SCREEN_WIDTH - CONSTANTS.RIGHT_COLUMN_WIDTH + 50, 500, 200, 50, "Exit", self.font, CONSTANTS.RED, CONSTANTS.WHITE)
         ]
         # Define input field for grid size
         self.grid_size_field = InputField(
-            SCREEN_WIDTH - RIGHT_COLUMN_WIDTH + 50,
+            CONSTANTS.SCREEN_WIDTH - CONSTANTS.RIGHT_COLUMN_WIDTH + 50,
             600,
             200,
             50,
             self.font,
-            default_text=str(GRID_SIZE),  # Show default grid size
-            text_color=BLACK,
-            border_color=BLACK
+            default_text=str(CONSTANTS.GRID_SIZE),  # Show default grid size
+            text_color=CONSTANTS.BLACK,
+            border_color=CONSTANTS.BLACK
         )
 
 
@@ -75,7 +74,7 @@ class MazeGame:
                                 new_grid_size = int(self.grid_size_field.text)
                                 if new_grid_size > 5:  # Ensure grid size is reasonable
                                     print(f"Refreshing maze with grid size: {new_grid_size}")
-                                    self.set_constants(new_grid_size)
+                                    CONSTANTS.set_screen_size(new_grid_size)
                                     self.reset_game()
                                 else:
                                     print("Error: Grid size must be greater than 5.")
@@ -86,11 +85,11 @@ class MazeGame:
                             exit()
 
     def draw(self):
-         # Draw the maze
+        # Draw the maze
         self.maze.draw(self.screen, self.player_position, self.exit_position, self.ai_help_path)
 
         # Draw the right column and buttons
-        pygame.draw.rect(self.screen, GRAY, (MAZE_WIDTH, 0, RIGHT_COLUMN_WIDTH, SCREEN_HEIGHT))  # Right column background
+        pygame.draw.rect(self.screen, CONSTANTS.GRAY, (CONSTANTS.MAZE_WIDTH, 0, CONSTANTS.RIGHT_COLUMN_WIDTH, CONSTANTS.SCREEN_HEIGHT))  # Right column background
         for button in self.buttons:
             button.draw(self.screen)
 
@@ -110,7 +109,7 @@ class MazeGame:
         game = self
         running = True
         while running:
-            self.screen.fill(BLACK)
+            self.screen.fill(CONSTANTS.BLACK)
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -123,33 +122,21 @@ class MazeGame:
 
         pygame.quit()
 
-    def set_constants(self, grid_size):
-        global SCREEN_WIDTH, SCREEN_HEIGHT, RIGHT_COLUMN_WIDTH, MAZE_WIDTH, MAZE_HEIGHT, GRID_SIZE, CELL_SIZE, COLS, ROWS
-        GRID_SIZE = grid_size  # Number of maze cells along one dimension
-        SCREEN_WIDTH, SCREEN_HEIGHT = pygame.display.Info().current_w, pygame.display.Info().current_h
-        RIGHT_COLUMN_WIDTH = 300  # Fixed width for the right-side column
-        MAZE_WIDTH = SCREEN_WIDTH - RIGHT_COLUMN_WIDTH
-        MAZE_HEIGHT = SCREEN_HEIGHT
-        # Calculate dynamic columns and rows based on GRID_SIZE
-        CELL_SIZE = min(MAZE_WIDTH // GRID_SIZE, MAZE_HEIGHT // GRID_SIZE)  # Dynamic cell size
-        COLS = GRID_SIZE  # Use GRID_SIZE directly for columns
-        CELL_SIZE = MAZE_WIDTH // COLS  # Dynamically calculate cell size
-        ROWS = MAZE_HEIGHT // CELL_SIZE  # Adjust rows to fit the height dynamically
 
-    def set_variables(self):
+
+    def iniate_services_and_variables(self):
+
         self.game_over = False
-
-    def iniate_services(self):
         
-        self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.FULLSCREEN)
+        self.screen = pygame.display.set_mode((CONSTANTS.SCREEN_WIDTH, CONSTANTS.SCREEN_HEIGHT), pygame.FULLSCREEN)
         
         self.clock = pygame.time.Clock()
-        self.maze = Maze(ROWS, COLS, CELL_SIZE)
+        self.maze = Maze(CONSTANTS.ROWS, CONSTANTS.COLS, CONSTANTS.CELL_SIZE)
 
         # Initialize player
         self.player = Player((1,1))
         self.player_position = [1, 1]
-        self.exit_position = [COLS - 2, ROWS - 2]
+        self.exit_position = [CONSTANTS.COLS - 2, CONSTANTS.ROWS - 2]
 
         # Initialize AI
         self.ai = AI((1,1), tuple(self.exit_position))
@@ -163,14 +150,14 @@ class MazeGame:
         Reset the maze, player position, and AI helper path to start a new game.
         """
         # Regenerate the maze
-        self.maze = Maze(ROWS, COLS, CELL_SIZE)
+        self.maze = Maze(CONSTANTS.ROWS, CONSTANTS.COLS, CONSTANTS.CELL_SIZE)
 
         # Reset player position
         self.player = Player((1, 1))
         self.player_position = [1, 1]
 
         # Reset exit position
-        self.exit_position = [COLS - 2, ROWS - 2]
+        self.exit_position = [CONSTANTS.COLS - 2, CONSTANTS.ROWS - 2]
 
         # Reset AI path
         self.ai = AI((1, 1), tuple(self.exit_position))
