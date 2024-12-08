@@ -1,8 +1,10 @@
 from queue import Queue
 import heapq
-from queue import Queue
-import heapq
-from Maze import Maze
+import time
+import psutil
+
+from AIMetrics import AIMetrics
+
 
 class AI:
     def __init__(self, start_position, goal_position):
@@ -20,9 +22,10 @@ class AI:
     # ------------------------------
     def bfs(self, start_position, maze):
         if self._is_path_blocked(start_position, maze):
-            return []
+            return AIMetrics("BFS", [], 0, 0, 0, 0, 0, 0)
+
         if not self.validate_connectivity(maze):
-            return []
+            return AIMetrics("BFS", [], 0, 0, 0, 0, 0, 0)
 
         """
         Perform Breadth-First Search (BFS) to find the shortest path in an unweighted maze.
@@ -32,6 +35,14 @@ class AI:
         :param maze: 2D list where 0 = open path, 1 = wall.
         :return: List of positions representing the shortest path from start to goal.
         """
+
+        # Metrics initialization
+        start_time = time.perf_counter()
+        process = psutil.Process()
+        cpu_before = process.cpu_percent()
+        memory_before = process.memory_info().rss
+        nodes_explored = 0
+
         rows, cols = len(maze), len(maze[0])
         queue = Queue()
         queue.put(start_position)  # Queue holds positions to explore
@@ -41,10 +52,26 @@ class AI:
 
         while not queue.empty():
             current_position = queue.get()
+            nodes_explored += 1  # Count visited nodes
 
             # Check if we've reached the goal
             if current_position == self.goal_position:
-                return self._reconstruct_path(parent_map)
+                path = self._reconstruct_path(parent_map)
+                path_length = self._calculate_path_length(path)
+                cpu_after = process.cpu_percent()
+                memory_after = process.memory_info().rss
+                execution_time = time.perf_counter() - start_time
+
+                return AIMetrics(
+                    algorithm_name="BFS",
+                    path=path,
+                    steps=len(path),
+                    nodes_explored=nodes_explored,
+                    path_length=path_length,
+                    execution_time=execution_time,
+                    cpu_usage=cpu_after - cpu_before,
+                    memory_usage=(memory_after - memory_before) / 1024 ** 2  # Convert to MB
+                )
 
             # Explore all valid neighbors
             for neighbor in self._get_neighbors(current_position, maze, rows, cols):
@@ -53,16 +80,17 @@ class AI:
                     visited.add(neighbor)
                     parent_map[neighbor] = current_position  # Track how we reached this position
 
-        return []  # No path found
-
+        return AIMetrics("BFS", [], 0, nodes_explored, 0, 0, 0, 0)
     # ------------------------------
     # Depth-First Search (DFS)
     # ------------------------------
     def dfs(self, start_position, maze):
         if self._is_path_blocked(start_position, maze):
-            return []
+            return AIMetrics("DFS", [], 0, 0, 0, 0, 0, 0)
+
         if not self.validate_connectivity(maze):
-            return []
+            return AIMetrics("DFS", [], 0, 0, 0, 0, 0, 0)
+
         """
         Perform Depth-First Search (DFS) to find a path in the maze.
         
@@ -71,6 +99,13 @@ class AI:
         :param maze: 2D list where 0 = open path, 1 = wall.
         :return: List of positions representing a path from start to goal.
         """
+        # Metrics initialization
+        start_time = time.perf_counter()
+        process = psutil.Process()
+        cpu_before = process.cpu_percent()
+        memory_before = process.memory_info().rss
+        nodes_explored = 0
+
         rows, cols = len(maze), len(maze[0])
         stack = [start_position]  # Stack for DFS
         visited = set()               # Keep track of visited positions
@@ -78,9 +113,26 @@ class AI:
 
         while stack:    # Continue until all paths are explored
             current_position = stack.pop()
+            nodes_explored += 1  # Count visited nodes
+            
             # Check if we've reached the goal
             if current_position == self.goal_position:
-                return self._reconstruct_path(parent_map)
+                path = self._reconstruct_path(parent_map)
+                path_length = self._calculate_path_length(path)
+                cpu_after = process.cpu_percent()
+                memory_after = process.memory_info().rss
+                execution_time = time.perf_counter() - start_time
+
+                return AIMetrics(
+                    algorithm_name="DFS",
+                    path=path,
+                    steps=len(path),
+                    nodes_explored=nodes_explored,
+                    path_length=path_length,
+                    execution_time=execution_time,
+                    cpu_usage=cpu_after - cpu_before,
+                    memory_usage=(memory_after - memory_before) / 1024 ** 2  # Convert to MB
+                )
 
             # Explore all valid neighbors
             if current_position not in visited:
@@ -89,16 +141,19 @@ class AI:
                     if neighbor not in visited:
                         stack.append(neighbor)
                         parent_map[neighbor] = current_position  # Track how we reached this position
-        return []  # No path found
+
+        return AIMetrics("DFS", [], 0, nodes_explored, 0, 0, 0, 0)
 
     # ------------------------------
     # A* Search
     # ------------------------------
     def a_star(self, start_position, maze):
         if self._is_path_blocked(start_position, maze):
-            return []
+            return AIMetrics("A*", [], 0, 0, 0, 0, 0, 0)
+
         if not self.validate_connectivity(maze):
-            return []
+            return AIMetrics("A*", [], 0, 0, 0, 0, 0, 0)
+
         """
         Perform A* Search to find the optimal path using a heuristic.
         
@@ -107,6 +162,13 @@ class AI:
         :param maze: 2D list where 0 = open path, 1 = wall.
         :return: List of positions representing the optimal path from start to goal.
         """
+        # Metrics initialization
+        start_time = time.perf_counter()
+        process = psutil.Process()
+        cpu_before = process.cpu_percent()
+        memory_before = process.memory_info().rss
+        nodes_explored = 0
+
         rows, cols = len(maze), len(maze[0])
         open_set = []  # Priority queue for positions to explore
         heapq.heappush(open_set, (0, start_position))  # (priority, position)
@@ -116,10 +178,27 @@ class AI:
 
         while open_set:
             _, current_position = heapq.heappop(open_set)
+            nodes_explored += 1  # Count visited nodes
 
             # Check if we've reached the goal
             if current_position == self.goal_position:
-                return self._reconstruct_path(parent_map)
+                path = self._reconstruct_path(parent_map)
+                path_length = self._calculate_path_length(path)
+                cpu_after = process.cpu_percent()
+                memory_after = process.memory_info().rss
+                execution_time = time.perf_counter() - start_time
+
+                return AIMetrics(
+                    algorithm_name="A*",
+                    path=path,
+                    steps=len(path),
+                    nodes_explored=nodes_explored,
+                    path_length=path_length,
+                    execution_time=execution_time,
+                    cpu_usage=cpu_after - cpu_before,
+                    memory_usage=(memory_after - memory_before) / 1024 ** 2  # Convert to MB
+                )
+            
 
             # Explore all valid neighbors
             for neighbor in self._get_neighbors(current_position, maze, rows, cols):
@@ -131,7 +210,8 @@ class AI:
                     heapq.heappush(open_set, (f_cost[neighbor], neighbor))
                     parent_map[neighbor] = current_position  # Track how we reached this position
 
-        return []  # No path found
+        return AIMetrics("A*", [], 0, nodes_explored, 0, 0, 0, 0)
+
 
     # ------------------------------
     # Utility Functions
@@ -192,7 +272,11 @@ class AI:
         
         return False
 
-    
+    def _calculate_path_length(self, path):
+        if not path:
+            return 0
+        return sum(abs(path[i][0] - path[i-1][0]) + abs(path[i][1] - path[i-1][1]) for i in range(1, len(path)))
+
     def validate_connectivity(self, maze):
         rows, cols = len(maze), len(maze[0])
         queue = Queue()
