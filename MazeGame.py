@@ -21,19 +21,24 @@ class MazeGame:
         RIGHT_COLUMN_WIDTH = 300  # Fixed width for the right-side column
         MAZE_WIDTH = SCREEN_WIDTH - RIGHT_COLUMN_WIDTH
         MAZE_HEIGHT = SCREEN_HEIGHT
-        GRID_SIZE = 300  # Number of maze cells along one dimension
+        # Calculate dynamic columns and rows based on GRID_SIZE
+        GRID_SIZE = 200  # Number of maze cells along one dimension
         CELL_SIZE = min(MAZE_WIDTH // GRID_SIZE, MAZE_HEIGHT // GRID_SIZE)  # Dynamic cell size
+        COLS = GRID_SIZE  # Use GRID_SIZE directly for columns
+        CELL_SIZE = MAZE_WIDTH // COLS  # Dynamically calculate cell size
+        ROWS = MAZE_HEIGHT // CELL_SIZE  # Adjust rows to fit the height dynamically
+        
 
         self.game_over = False
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.FULLSCREEN)
         
         self.clock = pygame.time.Clock()
-        self.maze = Maze(GRID_SIZE, CELL_SIZE)
+        self.maze = Maze(ROWS, COLS, CELL_SIZE)
         self.player = Player((1,1))
-        self.exit_position = [GRID_SIZE - 2, GRID_SIZE - 2]
+        self.player_position = [1, 1]
+        self.exit_position = [COLS - 2, ROWS - 2]
         self.ai = AI((1,1), tuple(self.exit_position))
         self.ai_help_path = []
-        self.player_position = [1, 1]
         self.font = pygame.font.Font(None, 36)
 
         # Define buttons
@@ -63,7 +68,6 @@ class MazeGame:
                 if button.is_clicked(event.pos):
                     if button.text == "BFS":
                         self.ai_help_path = self.ai.bfs(tuple(self.player.position),self.maze.maze)
-                        print("BFS")
                     elif button.text == "DFS":
                         self.ai_help_path = self.ai.dfs(tuple(self.player.position), self.maze.maze)
                         pass

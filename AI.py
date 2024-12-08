@@ -177,17 +177,21 @@ class AI:
             current_position = parent_map[current_position]
         path.reverse()
         return path
-
+    
     def _is_path_blocked(self, start_position, maze):
         if maze[start_position[1]][start_position[0]] == 1:
             print("Error: Starting position is blocked.")
+            print(f"Blocked Start Position: {start_position}")
             return True
 
         if maze[self.goal_position[1]][self.goal_position[0]] == 1:
-            print("Error: Goal position is blocked.")
-            return True
+            print("Error: Goal position is blocked. Forcing it open.")
+            print(f"Blocked Goal Position: {self.goal_position}")
+            maze[self.goal_position[1]][self.goal_position[0]] = 0  # Force goal to be open
+            return False  # Treat as resolved
         
         return False
+
     
     def validate_connectivity(self, maze):
         rows, cols = len(maze), len(maze[0])
