@@ -1,7 +1,7 @@
 import pygame
 from board import Board
-from ai import get_best_move
 from GameRenderer import GameRenderer
+from AI.ai import AI
 from constants import *
 
 class Game:
@@ -11,13 +11,10 @@ class Game:
     def __init__(self):
         # Initialize game state
         self.board = Board()
+        self.ai = AI(PLAYER_O)
         self.current_player = PLAYER_X
         self.is_game_over = False
         self.winner = None
-        
-        # AI settings
-        self.ai_delay = 500  # milliseconds
-        self.last_ai_move = 0
         
         # Initialize renderer
         self.renderer = GameRenderer()
@@ -28,8 +25,12 @@ class Game:
             if event.type == pygame.QUIT:
                 return False
             
-            # Handle human player moves
-            if event.type == pygame.MOUSEBUTTONDOWN and not self.is_game_over:
+            # Handle mouse clicks - both for moves and restart
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if self.is_game_over:
+                    self.__init__()  # Reset game
+                    return True
+                
                 if self.current_player == PLAYER_X:
                     x, y = pygame.mouse.get_pos()
                     row = y // CELL_SIZE
@@ -42,7 +43,7 @@ class Game:
         if not self.is_game_over and self.current_player == PLAYER_O:
             current_time = pygame.time.get_ticks()
             # if current_time - self.last_ai_move >= self.ai_delay:
-            row, col = get_best_move(self.board, PLAYER_O)
+            row, col = self.ai.use_alpha_beta(self.board)
             if self.make_move(row, col):
                 # self.last_ai_move = current_time
                 self.check_game_over()
